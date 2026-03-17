@@ -1,1 +1,300 @@
-<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>University GPA Tool</title>\n</head>\n<body>\n    <h1>Calculate Your GPA</h1>\n    <form id="gpaForm">\n        <label for="gradePoints">Grade Points:</label>\n        <input type="number" id="gradePoints" name="gradePoints" required>\n        <br>\n        <label for="creditHours">Credit Hours:</label>\n        <input type="number" id="creditHours" name="creditHours" required>\n        <br>\n        <button type="submit">Calculate GPA</button>\n    </form>\n    <div id="result"></div>\n    <script>\n        document.getElementById('gpaForm').addEventListener('submit', function(event) {\n            event.preventDefault();\n            const gradePoints = parseFloat(document.getElementById('gradePoints').value);\n            const creditHours = parseFloat(document.getElementById('creditHours').value);\n            const gpa = gradePoints / creditHours;\n            document.getElementById('result').innerText = 'Your GPA is: ' + gpa.toFixed(2);\n        });\n    <\/script>\n</body>\n</html>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>University GPA Tool</title>
+
+<style>
+
+body{
+font-family:Arial;
+margin:40px;
+max-width:700px;
+}
+
+button{
+padding:8px 16px;
+margin:6px 4px;
+cursor:pointer;
+}
+
+input{
+width:90px;
+margin:5px;
+padding:4px;
+}
+
+.subject{
+margin:6px 0;
+}
+
+h2{
+margin-bottom:5px;
+}
+
+#gpa{
+font-size:22px;
+font-weight:bold;
+margin-top:15px;
+}
+
+#plannerResult{
+font-size:20px;
+margin-top:20px;
+font-weight:bold;
+}
+
+.hidden{
+display:none;
+}
+
+.section{
+margin-bottom:20px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h2>University GPA Tool</h2>
+
+<button onclick="showPage('calc')">GPA Calculator</button>
+<button onclick="showPage('planner')">GPA Planner</button>
+
+<hr>
+
+<!-- CALCULATOR -->
+
+<div id="calcPage">
+
+<div class="section">
+
+<h3>Step 1 : Number of subjects</h3>
+
+<div>5 credit subjects <input id="c5" type="number" min="0"></div>
+<div>4 credit subjects <input id="c4" type="number" min="0"></div>
+<div>3.5 credit subjects <input id="c3_5" type="number" min="0"></div>
+<div>3 credit subjects <input id="c3" type="number" min="0"></div>
+<div>2.5 credit subjects <input id="c2_5" type="number" min="0"></div>
+<div>2 credit subjects <input id="c2" type="number" min="0"></div>
+<div>1.5 credit subjects <input id="c1_5" type="number" min="0"></div>
+<div>1 credit subjects <input id="c1" type="number" min="0"></div>
+
+<button onclick="generate()">Generate Subjects</button>
+<button onclick="resetAll()">Reset</button>
+
+</div>
+
+<hr>
+
+<div class="section">
+
+<h3>Step 2 : Enter grades</h3>
+
+<div id="subjects"></div>
+
+<button onclick="calculate()">Calculate GPA</button>
+
+<div id="gpa"></div>
+
+</div>
+
+</div>
+
+<!-- PLANNER -->
+
+<div id="plannerPage" class="hidden">
+
+<h3>GPA Planner</h3>
+
+<div class="section">
+
+<div>
+Target GPA
+<input id="targetGPA" type="number" step="0.01">
+</div>
+
+<div>
+Total program credits
+<input id="totalCredits" type="number">
+</div>
+
+<div>
+Credits completed
+<input id="doneCredits" type="number">
+</div>
+
+<div>
+Current GPA
+<input id="currentGPA" type="number" step="0.01">
+</div>
+
+<button onclick="calculatePlanner()">Calculate</button>
+
+<div id="plannerResult"></div>
+
+</div>
+
+</div>
+
+<script>
+
+const gradePoint={
+"A":4,
+"B+":3.5,
+"B":3,
+"C+":2.5,
+"C":2,
+"D+":1.5,
+"D":1,
+"F":0
+}
+
+const creditTypes=[5,4,3.5,3,2.5,2,1.5,1]
+
+function showPage(page){
+
+document.getElementById("calcPage").classList.add("hidden")
+document.getElementById("plannerPage").classList.add("hidden")
+
+if(page==="calc")
+document.getElementById("calcPage").classList.remove("hidden")
+
+if(page==="planner")
+document.getElementById("plannerPage").classList.remove("hidden")
+
+}
+
+function createSelect(){
+
+let select=document.createElement("select")
+
+let defaultOpt=document.createElement("option")
+defaultOpt.text="-- select grade --"
+defaultOpt.value=""
+select.appendChild(defaultOpt)
+
+for(let g in gradePoint){
+
+let option=document.createElement("option")
+
+option.value=g
+option.text=g+" ("+gradePoint[g].toFixed(1)+")"
+
+select.appendChild(option)
+
+}
+
+return select
+
+}
+
+function generate(){
+
+let container=document.getElementById("subjects")
+container.innerHTML=""
+
+creditTypes.forEach(c=>{
+
+let id="c"+c.toString().replace(".","_")
+
+let count=document.getElementById(id).value
+
+for(let i=1;i<=count;i++){
+
+let div=document.createElement("div")
+div.className="subject"
+
+div.innerText=c+" credit subject "+i+" "
+
+let select=createSelect()
+
+select.dataset.credit=c
+
+div.appendChild(select)
+
+container.appendChild(div)
+
+}
+
+})
+
+}
+
+function calculate(){
+
+let selects=document.querySelectorAll("#subjects select")
+
+let totalPoints=0
+let totalCredits=0
+
+for(let s of selects){
+
+if(s.value===""){
+
+alert("Please select grade for all subjects")
+
+return
+
+}
+
+let grade=s.value
+let credit=parseFloat(s.dataset.credit)
+
+totalPoints+=gradePoint[grade]*credit
+totalCredits+=credit
+
+}
+
+let gpa=totalPoints/totalCredits
+
+document.getElementById("gpa").innerText=
+"Your GPA : "+gpa.toFixed(2)
+
+}
+
+function resetAll(){
+
+document.getElementById("subjects").innerHTML=""
+document.getElementById("gpa").innerText=""
+
+let inputs=document.querySelectorAll("#calcPage input")
+
+inputs.forEach(i=>i.value="")
+
+}
+
+function calculatePlanner(){
+
+let target=parseFloat(document.getElementById("targetGPA").value)
+let total=parseFloat(document.getElementById("totalCredits").value)
+let done=parseFloat(document.getElementById("doneCredits").value)
+let current=parseFloat(document.getElementById("currentGPA").value)
+
+if(!target||!total||!done||!current){
+
+alert("Please fill all fields")
+
+return
+
+}
+
+let totalTargetPoints=target*total
+let currentPoints=current*done
+
+let remainingCredits=total-done
+let neededPoints=totalTargetPoints-currentPoints
+
+let requiredGPA=neededPoints/remainingCredits
+
+document.getElementById("plannerResult").innerText=
+"You must average at least "+requiredGPA.toFixed(2)+" GPA for the remaining credits."
+
+}
+
+</script>
+
+</body>
+</html>
