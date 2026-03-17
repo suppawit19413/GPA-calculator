@@ -5,7 +5,6 @@
 <title>University GPA Tool</title>
 
 <style>
-
 body{
 font-family:Arial;
 margin:40px;
@@ -51,7 +50,6 @@ display:none;
 .section{
 margin-bottom:20px;
 }
-
 </style>
 
 </head>
@@ -64,8 +62,6 @@ margin-bottom:20px;
 <button onclick="showPage('planner')">GPA Planner</button>
 
 <hr>
-
-<!-- CALCULATOR -->
 
 <div id="calcPage">
 
@@ -81,6 +77,7 @@ margin-bottom:20px;
 <div>2 credit subjects <input id="c2" type="number" min="0"></div>
 <div>1.5 credit subjects <input id="c1_5" type="number" min="0"></div>
 <div>1 credit subjects <input id="c1" type="number" min="0"></div>
+<div>0.5 credit subjects <input id="c0_5" type="number" min="0"></div>
 
 <button onclick="generate()">Generate Subjects</button>
 <button onclick="resetAll()">Reset</button>
@@ -102,8 +99,6 @@ margin-bottom:20px;
 </div>
 
 </div>
-
-<!-- PLANNER -->
 
 <div id="plannerPage" class="hidden">
 
@@ -152,7 +147,7 @@ const gradePoint={
 "F":0
 }
 
-const creditTypes=[5,4,3.5,3,2.5,2,1.5,1]
+const creditTypes=[5,4,3.5,3,2.5,2,1.5,1,0.5]
 
 function showPage(page){
 
@@ -179,10 +174,8 @@ select.appendChild(defaultOpt)
 for(let g in gradePoint){
 
 let option=document.createElement("option")
-
 option.value=g
 option.text=g+" ("+gradePoint[g].toFixed(1)+")"
-
 select.appendChild(option)
 
 }
@@ -199,7 +192,6 @@ container.innerHTML=""
 creditTypes.forEach(c=>{
 
 let id="c"+c.toString().replace(".","_")
-
 let count=document.getElementById(id).value
 
 for(let i=1;i<=count;i++){
@@ -210,11 +202,9 @@ div.className="subject"
 div.innerText=c+" credit subject "+i+" "
 
 let select=createSelect()
-
 select.dataset.credit=c
 
 div.appendChild(select)
-
 container.appendChild(div)
 
 }
@@ -233,11 +223,8 @@ let totalCredits=0
 for(let s of selects){
 
 if(s.value===""){
-
 alert("Please select grade for all subjects")
-
 return
-
 }
 
 let grade=s.value
@@ -250,8 +237,7 @@ totalCredits+=credit
 
 let gpa=totalPoints/totalCredits
 
-document.getElementById("gpa").innerText=
-"Your GPA : "+gpa.toFixed(2)
+document.getElementById("gpa").innerText="Your GPA : "+gpa.toFixed(2)
 
 }
 
@@ -261,7 +247,6 @@ document.getElementById("subjects").innerHTML=""
 document.getElementById("gpa").innerText=""
 
 let inputs=document.querySelectorAll("#calcPage input")
-
 inputs.forEach(i=>i.value="")
 
 }
@@ -274,11 +259,8 @@ let done=parseFloat(document.getElementById("doneCredits").value)
 let current=parseFloat(document.getElementById("currentGPA").value)
 
 if(!target||!total||!done||!current){
-
 alert("Please fill all fields")
-
 return
-
 }
 
 let totalTargetPoints=target*total
