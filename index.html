@@ -1,282 +1,303 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
-<meta charset="UTF-8">
-<title>University GPA Tool</title>
-
-<style>
-body{
-font-family:Arial;
-margin:40px;
-max-width:700px;
-}
-
-button{
-padding:8px 16px;
-margin:6px 4px;
-cursor:pointer;
-}
-
-input{
-width:90px;
-margin:5px;
-padding:4px;
-}
-
-.subject{
-margin:6px 0;
-}
-
-h2{
-margin-bottom:5px;
-}
-
-#gpa{
-font-size:22px;
-font-weight:bold;
-margin-top:15px;
-}
-
-#plannerResult{
-font-size:20px;
-margin-top:20px;
-font-weight:bold;
-}
-
-.hidden{
-display:none;
-}
-
-.section{
-margin-bottom:20px;
-}
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University GPA Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap');
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: #f8fafc;
+        }
+        .card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .input-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            background: #f1f5f9;
+            border-radius: 0.5rem;
+        }
+        .hidden { display: none; }
+    </style>
 </head>
-
-<body>
-
-<h2>University GPA Tool</h2>
-
-<button onclick="showPage('calc')">GPA Calculator</button>
-<button onclick="showPage('planner')">GPA Planner</button>
-
-<hr>
-
-<div id="calcPage">
-
-<div class="section">
-
-<h3>Step 1 : Number of subjects</h3>
-
-<div>5 credit subjects <input id="c5" type="number" min="0"></div>
-<div>4 credit subjects <input id="c4" type="number" min="0"></div>
-<div>3.5 credit subjects <input id="c3_5" type="number" min="0"></div>
-<div>3 credit subjects <input id="c3" type="number" min="0"></div>
-<div>2.5 credit subjects <input id="c2_5" type="number" min="0"></div>
-<div>2 credit subjects <input id="c2" type="number" min="0"></div>
-<div>1.5 credit subjects <input id="c1_5" type="number" min="0"></div>
-<div>1 credit subjects <input id="c1" type="number" min="0"></div>
-<div>0.5 credit subjects <input id="c0_5" type="number" min="0"></div>
-
-<button onclick="generate()">Generate Subjects</button>
-<button onclick="resetAll()">Reset</button>
-
-</div>
-
-<hr>
-
-<div class="section">
-
-<h3>Step 2 : Enter grades</h3>
-
-<div id="subjects"></div>
-
-<button onclick="calculate()">Calculate GPA</button>
-
-<div id="gpa"></div>
-
-</div>
-
-</div>
-
-<div id="plannerPage" class="hidden">
-
-<h3>GPA Planner</h3>
-
-<div class="section">
-
-<div>
-Target GPA
-<input id="targetGPA" type="number" step="0.01">
-</div>
-
-<div>
-Total program credits
-<input id="totalCredits" type="number">
-</div>
-
-<div>
-Credits completed
-<input id="doneCredits" type="number">
-</div>
-
-<div>
-Current GPA
-<input id="currentGPA" type="number" step="0.01">
-</div>
-
-<button onclick="calculatePlanner()">Calculate</button>
-
-<div id="plannerResult"></div>
-
-</div>
-
-</div>
-
-<script>
-
-const gradePoint={
-"A":4,
-"B+":3.5,
-"B":3,
-"C+":2.5,
-"C":2,
-"D+":1.5,
-"D":1,
-"F":0
-}
-
-const creditTypes=[5,4,3.5,3,2.5,2,1.5,1,0.5]
-
-function showPage(page){
-
-document.getElementById("calcPage").classList.add("hidden")
-document.getElementById("plannerPage").classList.add("hidden")
-
-if(page==="calc")
-document.getElementById("calcPage").classList.remove("hidden")
-
-if(page==="planner")
-document.getElementById("plannerPage").classList.remove("hidden")
-
-}
-
-function createSelect(){
-
-let select=document.createElement("select")
-
-let defaultOpt=document.createElement("option")
-defaultOpt.text="-- select grade --"
-defaultOpt.value=""
-select.appendChild(defaultOpt)
-
-for(let g in gradePoint){
-
-let option=document.createElement("option")
-option.value=g
-option.text=g+" ("+gradePoint[g].toFixed(1)+")"
-select.appendChild(option)
-
-}
-
-return select
-
-}
-
-function generate(){
-
-let container=document.getElementById("subjects")
-container.innerHTML=""
-
-creditTypes.forEach(c=>{
-
-let id="c"+c.toString().replace(".","_")
-let count=document.getElementById(id).value
-
-for(let i=1;i<=count;i++){
-
-let div=document.createElement("div")
-div.className="subject"
-
-div.innerText=c+" credit subject "+i+" "
-
-let select=createSelect()
-select.dataset.credit=c
-
-div.appendChild(select)
-container.appendChild(div)
-
-}
-
-})
-
-}
-
-function calculate(){
-
-let selects=document.querySelectorAll("#subjects select")
-
-let totalPoints=0
-let totalCredits=0
-
-for(let s of selects){
-
-if(s.value===""){
-alert("Please select grade for all subjects")
-return
-}
-
-let grade=s.value
-let credit=parseFloat(s.dataset.credit)
-
-totalPoints+=gradePoint[grade]*credit
-totalCredits+=credit
-
-}
-
-let gpa=totalPoints/totalCredits
-
-document.getElementById("gpa").innerText="Your GPA : "+gpa.toFixed(2)
-
-}
-
-function resetAll(){
-
-document.getElementById("subjects").innerHTML=""
-document.getElementById("gpa").innerText=""
-
-let inputs=document.querySelectorAll("#calcPage input")
-inputs.forEach(i=>i.value="")
-
-}
-
-function calculatePlanner(){
-
-let target=parseFloat(document.getElementById("targetGPA").value)
-let total=parseFloat(document.getElementById("totalCredits").value)
-let done=parseFloat(document.getElementById("doneCredits").value)
-let current=parseFloat(document.getElementById("currentGPA").value)
-
-if(!target||!total||!done||!current){
-alert("Please fill all fields")
-return
-}
-
-let totalTargetPoints=target*total
-let currentPoints=current*done
-
-let remainingCredits=total-done
-let neededPoints=totalTargetPoints-currentPoints
-
-let requiredGPA=neededPoints/remainingCredits
-
-document.getElementById("plannerResult").innerText=
-"You must average at least "+requiredGPA.toFixed(2)+" GPA for the remaining credits."
-
-}
-
-</script>
-
+<body class="p-4 md:p-8">
+
+    <div class="max-w-2xl mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-indigo-700">University GPA Tool</h1>
+            <p class="text-slate-500">คำนวณเกรดเฉลี่ยและวางแผนการเรียน</p>
+        </header>
+
+        <!-- Navigation -->
+        <div class="flex gap-2 mb-6">
+            <button onclick="showPage('calc')" id="btn-calc" class="flex-1 py-3 px-4 rounded-xl font-medium transition-all bg-indigo-600 text-white shadow-lg">เครื่องคิดเลข GPA</button>
+            <button onclick="showPage('planner')" id="btn-planner" class="flex-1 py-3 px-4 rounded-xl font-medium transition-all bg-white text-slate-600 border border-slate-200">วางแผน GPA</button>
+        </div>
+
+        <!-- Custom Notification Message Box -->
+        <div id="messageBox" class="hidden fixed top-4 left-1/2 -translate-x-1/2 z-50 w-11/12 max-w-sm p-4 rounded-lg bg-red-100 border border-red-400 text-red-700 shadow-xl">
+            <p id="messageText"></p>
+        </div>
+
+        <!-- GPA Calculator Page -->
+        <div id="calcPage" class="card p-6">
+            <section class="mb-8">
+                <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+                    <span class="bg-indigo-100 text-indigo-700 w-8 h-8 rounded-full flex items-center justify-center text-sm">1</span>
+                    ระบุจำนวนวิชาตามหน่วยกิต
+                </h2>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="creditInputContainer">
+                    <!-- จะถูกเติมโดย JavaScript -->
+                </div>
+
+                <div class="mt-6 flex gap-2">
+                    <button onclick="generate()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-medium transition-colors">สร้างรายการวิชา</button>
+                    <button onclick="resetAll()" class="px-6 bg-slate-100 hover:bg-slate-200 text-slate-600 py-3 rounded-lg font-medium transition-colors">รีเซ็ต</button>
+                </div>
+            </section>
+
+            <hr class="my-8 border-slate-100">
+
+            <section id="step2Section" class="hidden">
+                <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+                    <span class="bg-indigo-100 text-indigo-700 w-8 h-8 rounded-full flex items-center justify-center text-sm">2</span>
+                    ระบุเกรดที่ได้รับ
+                </h2>
+                
+                <div id="subjects" class="space-y-3 mb-6"></div>
+
+                <button onclick="calculate()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-xl text-lg font-bold shadow-md transition-all">คำนวณ GPA</button>
+
+                <div id="gpaResult" class="mt-6 p-6 bg-indigo-50 border border-indigo-100 rounded-2xl text-center hidden">
+                    <p class="text-slate-600 text-sm uppercase tracking-wider font-semibold">เกรดเฉลี่ยของคุณคือ</p>
+                    <div id="gpaValue" class="text-5xl font-black text-indigo-700 mt-1">0.00</div>
+                </div>
+            </section>
+        </div>
+
+        <!-- GPA Planner Page -->
+        <div id="plannerPage" class="card p-6 hidden">
+            <h2 class="text-xl font-semibold mb-6">วางแผนการเรียน (GPA Planner)</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">เป้าหมาย GPA ที่ต้องการ</label>
+                    <input id="targetGPA" type="number" step="0.01" placeholder="เช่น 3.50" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">หน่วยกิตทั้งหมดของหลักสูตร</label>
+                    <input id="totalCredits" type="number" placeholder="เช่น 120" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">หน่วยกิตที่เรียนผ่านไปแล้ว</label>
+                    <input id="doneCredits" type="number" placeholder="เช่น 60" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">GPA ปัจจุบัน</label>
+                    <input id="currentGPA" type="number" step="0.01" placeholder="เช่น 3.20" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <button onclick="calculatePlanner()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl text-lg font-bold shadow-md transition-all mt-4">วิเคราะห์ความพยายาม</button>
+
+                <div id="plannerResultBox" class="mt-6 p-6 bg-amber-50 border border-amber-100 rounded-2xl hidden">
+                    <p class="text-amber-800" id="plannerResultMessage"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const gradePoint = {
+            "A": 4.0, "B+": 3.5, "B": 3.0, "C+": 2.5, "C": 2.0, "D+": 1.5, "D": 1.0, "F": 0.0
+        };
+
+        // เพิ่ม 4.5 เข้าไปในรายการหน่วยกิต
+        const creditTypes = [5, 4.5, 4, 3.5, 3, 2.5, 2, 1.5, 1, 0.5];
+
+        // สร้างช่อง Input สำหรับหน่วยกิตต่างๆ
+        function initCreditInputs() {
+            const container = document.getElementById('creditInputContainer');
+            creditTypes.forEach(c => {
+                const id = "c" + c.toString().replace(".", "_");
+                const div = document.createElement('div');
+                div.className = "input-group";
+                div.innerHTML = `
+                    <span class="text-slate-600 font-medium">${c} เครดิต</span>
+                    <input id="${id}" type="number" min="0" placeholder="0" class="w-20 p-2 rounded border border-slate-300 text-center">
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function showMessage(text) {
+            const box = document.getElementById('messageBox');
+            const txt = document.getElementById('messageText');
+            txt.innerText = text;
+            box.classList.remove('hidden');
+            setTimeout(() => { box.classList.add('hidden'); }, 3000);
+        }
+
+        function showPage(page) {
+            const calcPage = document.getElementById("calcPage");
+            const plannerPage = document.getElementById("plannerPage");
+            const btnCalc = document.getElementById("btn-calc");
+            const btnPlanner = document.getElementById("btn-planner");
+
+            if (page === "calc") {
+                calcPage.classList.remove("hidden");
+                plannerPage.classList.add("hidden");
+                btnCalc.className = "flex-1 py-3 px-4 rounded-xl font-medium transition-all bg-indigo-600 text-white shadow-lg";
+                btnPlanner.className = "flex-1 py-3 px-4 rounded-xl font-medium transition-all bg-white text-slate-600 border border-slate-200";
+            } else {
+                calcPage.classList.add("hidden");
+                plannerPage.classList.remove("hidden");
+                btnPlanner.className = "flex-1 py-3 px-4 rounded-xl font-medium transition-all bg-indigo-600 text-white shadow-lg";
+                btnCalc.className = "flex-1 py-3 px-4 rounded-xl font-medium transition-all bg-white text-slate-600 border border-slate-200";
+            }
+        }
+
+        function createGradeSelect() {
+            let select = document.createElement("select");
+            select.className = "flex-1 p-2 bg-white border border-slate-300 rounded-md outline-none focus:ring-2 focus:ring-indigo-500";
+            
+            let defaultOpt = document.createElement("option");
+            defaultOpt.text = "เลือกเกรด";
+            defaultOpt.value = "";
+            select.appendChild(defaultOpt);
+
+            for (let g in gradePoint) {
+                let option = document.createElement("option");
+                option.value = g;
+                option.text = g + " (" + gradePoint[g].toFixed(1) + ")";
+                select.appendChild(option);
+            }
+            return select;
+        }
+
+        function generate() {
+            let container = document.getElementById("subjects");
+            container.innerHTML = "";
+            let hasSubjects = false;
+
+            creditTypes.forEach(c => {
+                let id = "c" + c.toString().replace(".", "_");
+                let count = parseInt(document.getElementById(id).value) || 0;
+
+                for (let i = 1; i <= count; i++) {
+                    hasSubjects = true;
+                    let div = document.createElement("div");
+                    div.className = "flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded-lg";
+                    
+                    let label = document.createElement("span");
+                    label.className = "text-sm font-medium text-slate-500 min-w-[120px]";
+                    label.innerText = `วิชา (${c} นก.) #${i}`;
+
+                    let select = createGradeSelect();
+                    select.dataset.credit = c;
+
+                    div.appendChild(label);
+                    div.appendChild(select);
+                    container.appendChild(div);
+                }
+            });
+
+            if (hasSubjects) {
+                document.getElementById("step2Section").classList.remove("hidden");
+                document.getElementById("gpaResult").classList.add("hidden");
+                // Scroll to step 2
+                setTimeout(() => {
+                    document.getElementById("step2Section").scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+            } else {
+                showMessage("กรุณาระบุจำนวนวิชาอย่างน้อย 1 วิชา");
+            }
+        }
+
+        function calculate() {
+            let selects = document.querySelectorAll("#subjects select");
+            let totalPoints = 0;
+            let totalCredits = 0;
+            let allSelected = true;
+
+            selects.forEach(s => {
+                if (s.value === "") {
+                    allSelected = false;
+                    return;
+                }
+                let grade = s.value;
+                let credit = parseFloat(s.dataset.credit);
+                totalPoints += gradePoint[grade] * credit;
+                totalCredits += credit;
+            });
+
+            if (!allSelected) {
+                showMessage("กรุณาเลือกเกรดให้ครบทุกวิชา");
+                return;
+            }
+
+            if (totalCredits === 0) return;
+
+            let gpa = totalPoints / totalCredits;
+            document.getElementById("gpaValue").innerText = gpa.toFixed(2);
+            document.getElementById("gpaResult").classList.remove("hidden");
+            document.getElementById("gpaResult").scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetAll() {
+            document.getElementById("subjects").innerHTML = "";
+            document.getElementById("gpaResult").classList.add("hidden");
+            document.getElementById("step2Section").classList.add("hidden");
+            let inputs = document.querySelectorAll("#calcPage input");
+            inputs.forEach(i => i.value = "");
+        }
+
+        function calculatePlanner() {
+            let target = parseFloat(document.getElementById("targetGPA").value);
+            let total = parseFloat(document.getElementById("totalCredits").value);
+            let done = parseFloat(document.getElementById("doneCredits").value);
+            let current = parseFloat(document.getElementById("currentGPA").value);
+
+            if (isNaN(target) || isNaN(total) || isNaN(done) || isNaN(current)) {
+                showMessage("กรุณากรอกข้อมูลให้ครบถ้วน");
+                return;
+            }
+
+            if (done >= total) {
+                showMessage("หน่วยกิตที่ผ่านแล้วต้องน้อยกว่าหน่วยกิตทั้งหมด");
+                return;
+            }
+
+            let totalTargetPoints = target * total;
+            let currentPoints = current * done;
+            let remainingCredits = total - done;
+            let neededPoints = totalTargetPoints - currentPoints;
+            let requiredGPA = neededPoints / remainingCredits;
+
+            let resultBox = document.getElementById("plannerResultBox");
+            let resultMsg = document.getElementById("plannerResultMessage");
+            resultBox.classList.remove("hidden");
+
+            if (requiredGPA > 4.0) {
+                resultMsg.innerHTML = `<strong class="text-red-600">เป็นไปไม่ได้:</strong> คุณต้องทำเกรดเฉลี่ยถึง <strong>${requiredGPA.toFixed(2)}</strong> ในส่วนที่เหลือ ซึ่งเกินเกณฑ์สูงสุด (4.00)`;
+            } else if (requiredGPA <= 0) {
+                resultMsg.innerHTML = `<strong class="text-emerald-600">ยินดีด้วย:</strong> เป้าหมายของคุณเป็นไปได้ง่ายมาก แม้จะได้เกรดเฉลี่ยต่ำคุณก็จะยังถึงเป้าหมาย`;
+            } else {
+                resultMsg.innerHTML = `เพื่อให้ได้ GPA รวม ${target.toFixed(2)} คุณต้องทำเกรดเฉลี่ยในหน่วยกิตที่เหลืออีก ${remainingCredits} หน่วยกิต ให้ได้อย่างน้อย <strong class="text-xl text-indigo-700 underline">${requiredGPA.toFixed(2)}</strong>`;
+            }
+        }
+
+        // Initialize on load
+        window.onload = initCreditInputs;
+    </script>
 </body>
 </html>
+
